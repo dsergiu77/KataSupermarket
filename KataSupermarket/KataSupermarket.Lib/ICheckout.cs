@@ -7,7 +7,7 @@ namespace KataSupermarket.Lib
 
         decimal GetTotalPrice();
 
-        void Scan(string item);
+        void Scan(string item, int count = 1, bool undoScan = false);
 
         IPricingEngine GetPricingEngine();
     }

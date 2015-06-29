@@ -9,6 +9,8 @@ namespace KataSupermarket.Lib
     {
         void Add(string item);
 
+        void Remove(string item);
+
         IEnumerable<KeyValuePair<string, int>> GetItems();
 
         BasketInfo GetInfo();

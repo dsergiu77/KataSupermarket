@@ -28,6 +28,22 @@ namespace KataSupermarket.Lib
             }
         }
 
+        public void Remove(string item)
+        {
+            if (itemsDict.ContainsKey(item))
+            {
+                itemsDict[item]--;
+                if (itemsDict[item] == 0)
+                {
+                    itemsDict.Remove(item);
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException(item + " is not present in the basket");
+            }
+        }
+
         public IEnumerable<KeyValuePair<string, int>> GetItems()
         {
             return itemsDict.AsEnumerable();

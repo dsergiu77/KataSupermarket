@@ -28,9 +28,29 @@ namespace KataSupermarket.Lib
             return totalPrice;
         }
 
-        public void Scan(string item)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="count"></param>
+        /// <param name="undoScan"></param>
+        /// <remarks>for multiple undo scan, use positive value for count and set parameter undoScan to true</remarks>
+        public void Scan(string item, int count = 1, bool undoScan = false)
         {
-            basket.Add(item);
+            if (count <= 0)
+                throw new ArgumentOutOfRangeException("count", "count must be > 0");
+
+            for (int i = 0; i < count; i++)
+            {
+                if (!undoScan)
+                {
+                    basket.Add(item);
+                }
+                else
+                {
+                    basket.Remove(item);
+                }
+            }
         }
 
         public BasketInfo GetBasketInfo()

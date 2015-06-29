@@ -284,17 +284,6 @@ namespace KataSupermarket.Tests
         }
 
         [TestMethod]
-        public void If_Add_A_To_Basket_Then_Basket_Has_A_Once()
-        {
-            IBasket basket = new Basket();
-            basket.Add("A");
-            int countA = basket.GetInfo().GetCount("A");
-            int expectedCountA = 1;
-
-            Assert.AreEqual(expectedCountA, countA);
-        }
-
-        [TestMethod]
         public void Checkout_Has_BasketInfo()
         {
             ICheckout co = new Checkout(new PricingEngine());
@@ -494,5 +483,106 @@ namespace KataSupermarket.Tests
 
             Assert.AreEqual(expectedPrice, price);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void If_Scan_0A_Then_Exception_Is_Thrown()
+        {
+            IPricingEngine pe = new PricingEngine(
+                new List<IPricingRule> { 
+                    new QuantityPricingRule("A", 1, 50),
+                    new QuantityPricingRule("A", 2, 90),
+                });
+
+            ICheckout co = new Checkout(pe);
+
+            co.Scan("A", 0);
+
+            decimal price = co.GetTotalPrice();
+            decimal expectedPrice = 90;
+
+            Assert.AreEqual(expectedPrice, price);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void If_Undo_Scan_Minus_2A_Then_Exception_Is_Thrown()
+        {
+            // for undo scan, use positive value for count and set parameter undoScan to true
+            IPricingEngine pe = new PricingEngine(
+                new List<IPricingRule> { 
+                    new QuantityPricingRule("A", 1, 50),
+                    new QuantityPricingRule("A", 2, 90),
+                });
+
+            ICheckout co = new Checkout(pe);
+
+            co.Scan("A", -2, true);
+
+            decimal price = co.GetTotalPrice();
+            decimal expectedPrice = 90;
+
+            Assert.AreEqual(expectedPrice, price);
+        }
+
+        [TestMethod]
+        public void If_Scan_2A_And_Undo_Scan_of_Item_A_Then_Price_is_50()
+        {
+            IPricingEngine pe = new PricingEngine(
+                new List<IPricingRule> { 
+                    new QuantityPricingRule("A", 1, 50),
+                });
+
+            ICheckout co = new Checkout(pe);
+
+            co.Scan("A");
+            co.Scan("A");
+            co.Scan("A", undoScan:true);
+
+            decimal price = co.GetTotalPrice();
+            decimal expectedPrice = 50;
+
+            Assert.AreEqual(expectedPrice, price);
+        }
+
+        [TestMethod]
+        public void If_Scan_2A_At_a_Time_Then_Price_is_90()
+        {
+            IPricingEngine pe = new PricingEngine(
+                new List<IPricingRule> { 
+                    new QuantityPricingRule("A", 1, 50),
+                    new QuantityPricingRule("A", 2, 90),
+                });
+
+            ICheckout co = new Checkout(pe);
+
+            co.Scan("A", 2);
+
+            decimal price = co.GetTotalPrice();
+            decimal expectedPrice = 90;
+
+            Assert.AreEqual(expectedPrice, price);
+        }
+
+        [TestMethod]
+        public void If_Scan_3A_At_a_Time_And_Then_Undo_Scan_2A_Then_Price_is_50()
+        {
+            IPricingEngine pe = new PricingEngine(
+                new List<IPricingRule> { 
+                    new QuantityPricingRule("A", 1, 50),
+                    new QuantityPricingRule("A", 2, 90),
+                });
+
+            ICheckout co = new Checkout(pe);
+
+            co.Scan("A", 3);
+            co.Scan("A", 2, true);
+
+            decimal price = co.GetTotalPrice();
+            decimal expectedPrice = 50;
+
+            Assert.AreEqual(expectedPrice, price);
+        }
+
     }
 }
